@@ -125,7 +125,6 @@ bot = commands.Bot(command_prefix='.', description=description)
 
 bot.add_cog(ReservationHandler(bot, requests, ioc_group, ioc_queue, active_reservation, None))
 
-
 @bot.event
 async def on_ready():
     print('time for gaming'.format(bot))
@@ -134,10 +133,9 @@ async def on_ready():
 async def exit(ctx):
     await bot.logout()
 
-        
-
- 
-
-
-bot.run('NjgyNjk0MDI3Mjc5NDY2NTU2.XlguxQ.waSiNhaavRdLr3OR_5UwKL0iIfk')
+token = ''
+with open('discbot_token.txt') as f:
+    token = next(f)
+    
+bot.run(token)
 

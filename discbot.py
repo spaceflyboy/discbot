@@ -36,8 +36,10 @@ class ReservationHandler(commands.Cog):
         #On role state change, (elapsed reserved time slot, for example) it would be wise to flush the join requests dictionary.
         if self.ioc_role is None:
             self.ioc_role = get(ctx.message.guild.roles, id=730885871188049983)
-            
-        x = QueueNode(ctx.message.author, int(len))
+        
+        timeblock = int(len)*60
+        
+        x = QueueNode(ctx.message.author, timeblock)
         
         if self.active_reservation:     
             self.ioc_queue.put(x)

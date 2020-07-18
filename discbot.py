@@ -9,7 +9,9 @@ logging.basicConfig(level=logging.INFO)
 description = '''gaming'''
 
 ####TODO
-    #eventually, maybe showinfo function using get_commands from Cog for help information (LOW PRIO)
+    #improve ioc_help and clean up the other commands
+    #join reservation in queue using member target or unique identifier or fuckin something
+    #visual representation of the queue
     #role creation from scratch and maybe channel marking
     #hopefully eventually generalization across servers would be neato but would require large redesign to encapsulate instance data in something other than a cog (or maybe just a sublayer under the cog with a dict for server id --> state info or something
 
@@ -61,6 +63,7 @@ class ReservationHandler(commands.Cog):
         print("Broke out of the reserve loop, elapsedTime = " + str(elapsedTime) + ", active_reservation = " + str(self.active_reservation))
         
         for person in self.ioc_group:
+            print("role remove loop")
             await person.remove_roles(self.ioc_role)##
     
         self.ioc_group = []
@@ -96,8 +99,8 @@ class ReservationHandler(commands.Cog):
     
     @commands.command(pass_context=True)
     async def ioc_end(self, ctx):
-        if self.active_reservation:
-            self.ioc_group = []
+        if self.active_reservation and ctx.message.author in self.ioc_group:
+            print("ioc_end test")
             self.active_reservation = False
             
     @commands.command(pass_context=True)
@@ -110,12 +113,16 @@ class ReservationHandler(commands.Cog):
         print("\tioc queue:")
         print("\t" + str(self.ioc_queue))
         print("\tioc queue isEmpty?")
-        print("\t" + str(self.ioc_queue.empty()))
+        print("\t\t" + str(self.ioc_queue.empty()))
         print("\tactive_reservation")
-        print("\t" + str(self.active_reservation))
+        print("\t\t" + str(self.active_reservation))
         print("\tioc role")
         print("\t" + str(self.ioc_role))
         print("***")
+        
+    @commands.command(pass_context=True)
+    async def ioc_help(self, ctx):
+        await ctx.channel.send("IOC COMMAND LIST (they all start with .ioc_)\n\tres: reserve a time block (takes int parameter, currently seconds)\n\treq: request entrance (no visual cue atm)\n\t end:prematurely end reservation \n\taccept/reject to accept/reject requests, takes member tag as a param")
         
 requests = [] #list for persons seeking entry into a currently reserved invite-only-channel
 ioc_group = [] #list of people in current reservation group

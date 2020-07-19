@@ -9,12 +9,16 @@ logging.basicConfig(level=logging.INFO)
 description = '''gaming'''
 
 ####TODO
+    #although in practice they will likely not be encountered, I think there are some race conditions 
+    ###if you type commands too fast- i.e. ending a reservation and calling end again before the next 
+    ###reservation has been activated. I'm sure theres a way to synchronize this that wouldnt be too bad. 
+    ###Perhaps even just a thread shared busy flag like we did in context switch in OS
     #improve ioc_help and clean up the other commands
     #join reservation in queue using member target or unique identifier or fuckin something
     #visual representation of the queue
     #role creation from scratch and maybe channel marking
     #hopefully eventually generalization across servers would be neato but would require large redesign to encapsulate instance data in something other than a cog (or maybe just a sublayer under the cog with a dict for server id --> state info or something
-
+    
 class QueueNode:
         def __init__(self, reqHolder, reqLen):
             self.reqHolder = reqHolder
@@ -129,6 +133,29 @@ class ReservationHandler(commands.Cog):
         print("\tioc role")
         print("\t" + str(self.ioc_role))
         print("***")
+    
+    @commands.command(pass_context=True)
+    async def ioc_viewq(self, ctx):
+        s = ""
+        i = 0
+        temp = []
+        
+        if self.ioc_queue.empty():
+            await ctx.message.channel.send("The queue is currently empty")
+            
+        else:    
+            while not self.ioc_queue.empty():
+                temp.append(self.ioc_queue.get())
+                node = temp[i]
+                s += "Queue Pos " + str(i) + ": " + node.reqHolder.nick + " for " + str(node.reqLen) + " minutes\n"
+                i += 1
+                
+            index = 0
+            while index < i:
+                self.ioc_queue.put(temp[index])
+                index+=1
+            
+            await ctx.message.channel.send(s)
         
     @commands.command(pass_context=True)
     async def ioc_help(self, ctx):
